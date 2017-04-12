@@ -210,33 +210,32 @@ print "Content-type:text/html\n\n";
 print "<html><head>\n";
 
 print $stylecss;
-printf "\n<title>Index of %s</title></head>\n<body><h1>Index of %s</h1>\n", $virt, $virt;
+printf "<title>Index of %s</title></head>\n<body><h1>Index of %s</h1>\n", $virt, $virt;
 print "<hr>";
 
 print <<EOT;
-<p><b>Meta-Files:</b> These are the meta-files for $virt, and include
-build tools, the imagebuilder, sha256sums, GPG signature file, and other useful files. </p>
+<p><b>Meta-Files:</b> These are the meta-files for $virt. 
+They include build tools, the imagebuilder, sha256sums, GPG signature file, and other useful files. </p>
 EOT
 # /
 
-print "<table>";
-print '<tr><th class="n">Meta-file Name</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>';
-print "\n";
+print "<table>\n";
+print '  <tr><th class="n">Meta-file Name</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
 foreach my $entry (@metas) {
   printentry($entry, 0, "012345689ABCDEF")
 }
 print "</table>\n";
 
 print <<EOT;
-<p><b>Image Files:</b> These are the image files for $virt.  
-All these images files have the same prefix: <code>lede-17.01.0-r3205-59508e3-ar71xx-generic-...</code>
-Check that the sha256sum matches the file you downloaded. </p>
+<p><b>Image Files:</b> These are the image files for $virt. 
+Check that the sha256sum of the file you downloaded matches the sha256sum below.<br />
+<i>All the images file names below have the same prefix: <code>lede-17.01.0-r3205-59508e3-ar71xx-generic-...</code></i>
+</p>
 EOT
 # /
 
-print "<table>";
-print '<tr><th class="n">Image for your Device</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>';
-print "\n";
+print "<table>\n";
+print '  <tr><th class="n">Image for your Device</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
 foreach my $entry (@images) {
   printentry($entry, 1, "012345689ABCDEF")
 }
