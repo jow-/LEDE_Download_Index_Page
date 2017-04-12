@@ -8,11 +8,28 @@ use Fcntl ':mode';
 my $phys = $ENV{'DOCUMENT_ROOT'};
 my $virt = '/'.$ENV{'PATH_INFO'};
 
-my @hidden = (
+my @hidden = (                            # hide these files - never consider them
   qr!^/releases/\d\d\.\d\d-SNAPSHOT/?$!,
   qr!^/releases/faillogs/?$!,
-  qr!^/packages-\d\d\.\d\d/?$!
+  qr!^/packages-\d\d\.\d\d/?$!,
+  qr/.DS_Store/,                          # ignore OSX .DS_Store file
+  qr/index.html/                          # test script generates test.html in the SampleData directory
 );
+
+my $hidden_re = join '|', @hidden;        # build the master regex for hidden files
+   $hidden_re = qr/$hidden_re/o;
+
+my @metafiles = (                         # files to be displayed as "meta files" at the top of the page
+  qr/packages/,
+  qr/config.seed/,
+  qr/manifest/,
+  qr/lede-imagebuilder/,
+  qr/lede-sdk/,
+  qr/sha256sums/
+  );
+
+my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
+   $metafiles_re = qr/$metafiles_re/o;
 
 print "Content-type:text/html\n\n";
 print '<html><head><style type="text/css">';
@@ -99,9 +116,6 @@ print "<hr><table>";
 print '<tr><th class="n">File Name</th><th class="s">File Size</th><th class="d">Date</th></tr>';
 print "\n";
 
-my $hidden_re = join '|', @hidden;
-   $hidden_re = qr/$hidden_re/o;
-
 my @entries;
 
 if (opendir(D, $phys)) {
@@ -123,14 +137,31 @@ sub htmlenc {
   my $s = shift;
 
   if (defined($s) && length($s)) {
-    $s =~ s!([<>"])!sprintf '&#%u;', $1!eg;
+    $s =~ s!([<>"])!sprintf '&#%u;', $1!eg; # " 
   }
 
   return $s;
 }
 
+sub printentry {
+  my $entry = shift;
+
+}
+
+my @metas;
+my @images;
+
+foreach my $entry (@entries) {                # separate meta-files from image files
+  if ($entry =~ $metafiles_re) { 
+    push @metas, $entry;
+  }
+  else {
+    push @images, $entry;
+  }
+}
+
 foreach my $entry (@entries) {
-  my ($basename) = $entry =~ m!([^/]+)$!;
+  my ($basename) = $entry =~ m!([^/]+)$!; # / 
 
   print "<tr>";
 
