@@ -5,6 +5,7 @@ use warnings;
 
 use Fcntl ':mode';
 
+# Variable and function declarations
 
 my $stylecss = <<EOT;
   <style type="text/css">
@@ -87,8 +88,7 @@ my $stylecss = <<EOT;
   </style>
 EOT
 
-
-
+# htmlenc - encode the argument for html
 sub htmlenc {
   my $s = shift;
 
@@ -99,10 +99,10 @@ sub htmlenc {
   return $s;
 }
 
-# printentry 
+# printentry - print a row for each file in directory - <tr> ... </tr>
 #   $entry - full path to the file
-#   $isimagefile - true if it's an image file, false otherwise
-#   $sha256sum - the checksum 
+#   $isimagefile - true if it's an image file, false for meta-files
+#   $sha256sum - the checksum for the file
 sub printentry {
   my $entry = shift;
   my $isimagefile = shift;
@@ -124,27 +124,29 @@ sub printentry {
   else {
     $size = sprintf('%.1f KB', $s[7] / 1024);
   }
+  my $imagename = $basename;
+  if ($isimagefile) { $imagename = "short".$basename; }
 
 # All preparatory work complete: here are the variables
 #   $entry:     "./SampleData/config.seed"
 #   $basename:  "config.seed"
+#   $imagename: $basename, or shortened version of image name
 #   $link:      "" or "-> actual-file-following-link"
 #   $sha256sum: the sum, or "-"
 #   $size:      the size ("1234.5 KB") or "-"
 #   $date:      in the form "Tue Feb 21 04:03:38 2017"
 
   # Output the html for the row
-  print  '<tr>';
+  print '  <tr>';
   printf '<td class="n"><a href="%s">%s</a>%s</td>',       # link
     htmlenc($basename),
-    htmlenc($basename),
+    htmlenc($imagename),
     $link;
   printf '<td class="sh">%s</td>', $sha256sum;              # sha256sum
   printf '<td class="s">%s</td>', $size;                    # size
   printf '<td class="d">%s</td>', $date;                    # date
   print  "</tr>\n";
 }
-
 
 # ====== Main Routine ======
 
@@ -162,22 +164,7 @@ my @hidden = (                            # hide these files - never consider th
 my $hidden_re = join '|', @hidden;        # build the master regex for hidden files
    $hidden_re = qr/$hidden_re/o;
 
-my @metafiles = (                         # files to be displayed as "meta files" at the top of the page
-  qr/packages/,
-  qr/config.seed/,
-  qr/manifest/,
-  qr/lede-imagebuilder/,
-  qr/lede-sdk/,
-  qr/sha256sums/,
-  qr/\.\./
-  );
-
-my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
-   $metafiles_re = qr/$metafiles_re/o;
-
-
-
-my @entries;
+my @entries;                              # holds all files in the directory, except hidden files
 
 if (opendir(D, $phys)) {
   while (defined(my $entry = readdir D)) {
@@ -194,10 +181,23 @@ if (opendir(D, $phys)) {
   return (($d1 <=> $d2) || ($a cmp $b));
 } @entries;
 
-my @metas;
-my @images;
+my @metafiles = (                         # names of files to be displayed as "meta files" at the top of the page
+  qr/packages/,
+  qr/config.seed/,
+  qr/manifest/,
+  qr/lede-imagebuilder/,
+  qr/lede-sdk/,
+  qr/sha256sums/,
+  qr/\.\./
+  );
 
-foreach my $entry (@entries) {                # separate meta-files from image files
+my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
+   $metafiles_re = qr/$metafiles_re/o;
+
+my @metas;                                    # contains meta-file names
+my @images;                                   # contains image files that could be flashed
+
+foreach my $entry (@entries) {                # push files into the proper array
   if ($entry =~ $metafiles_re) { 
     push @metas, $entry;
   }
@@ -225,7 +225,7 @@ print "\n";
 foreach my $entry (@metas) {
   printentry($entry, 0, "012345689ABCDEF")
 }
-print "</table>";
+print "</table>\n";
 
 print <<EOT;
 <p><b>Image Files:</b> These are the image files for $virt.  
@@ -241,5 +241,5 @@ foreach my $entry (@images) {
   printentry($entry, 1, "012345689ABCDEF")
 }
 
-print "</table>";
+print "</table>\n";
 print "</body></html>";
