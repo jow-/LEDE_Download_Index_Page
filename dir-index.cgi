@@ -175,6 +175,126 @@ sub printentry {
   print  "</tr>\n";
 }
 
+sub printheader {
+  my $virt = shift;
+  print "Content-type:text/html\n\n";
+  print "<html><head>\n";
+
+  print $stylecss;
+  printf "<title>Index of %s</title></head>\n<body><h1>Index of %s</h1>\n", $virt, $virt;
+  print "<hr>";
+}
+
+sub printtargets {
+  my $entries = shift;
+  my $phys = shift;
+  my $virt = shift;
+  my @metafiles = (                         # names of files to be displayed as "meta files" at the top of the page
+    qr/packages/,
+    qr/config.seed/,
+    qr/manifest/,
+    qr/lede-imagebuilder/,
+    qr/lede-sdk/,
+    qr/sha256sums/,
+    qr/\.\./
+    );
+
+  my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
+     $metafiles_re = qr/$metafiles_re/o;
+
+  my @metas;                                    # contains meta-file names
+  my @images;                                   # contains image files that could be flashed
+
+  foreach my $entry (@$entries) {                # push files into the proper array
+    if ($entry =~ $metafiles_re) { 
+      push @metas, $entry;
+    }
+    else {
+      push @images, $entry;
+    }
+  }
+
+  my %sha256sums = getsha256sums($phys."sha256sums");
+
+  my @virts = split(/\//, $virt);
+  my $trimmedprefix = $virts[-2]."-".$virts[-1]."-";       # used to trim off prefix of image file names
+
+  printheader($virt);
+
+  print <<EOT;
+  <p><b>Meta-Files:</b> These are the meta-files for $virt. 
+  They include build tools, the imagebuilder, sha256sums, GPG signature file, and other useful files. </p>
+EOT
+  # /
+
+  print "<table>\n";
+  print '  <tr><th class="n">Meta-file Name</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
+  foreach my $entry (@metas) {
+    printentry($entry, "", \%sha256sums)
+  }
+  print "</table>\n";
+
+  print <<EOT;
+  <p><b>Image Files:</b> These are the image files for $virt. 
+  Check that the sha256sum of the file you downloaded matches the sha256sum below.<br />
+  <i>All the images file names below have the same prefix: <code>lede-17.01.0-r3205-59508e3-ar71xx-generic-...</code></i>
+  </p>
+EOT
+  # /
+
+  print "<table>\n";
+  print '  <tr><th class="n">Image for your Device</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
+  foreach my $entry (@images) {
+    printentry($entry, $trimmedprefix, \%sha256sums)
+  }
+  print "</table>\n";
+
+  print "</body></html>";
+}
+
+sub printdirectory {
+  my $entries = shift;
+  my $phys = shift;
+  my $virt = shift;
+
+  printheader($virt);
+  print "<table>\n";
+  print '  <tr><th class="n">File Name</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
+
+  foreach my $entry (@$entries) {
+    my ($basename) = $entry =~ m!([^/]+)$!; # /
+
+    print "  <tr>";
+
+    my @s = stat $entry;
+    my $link = (-l $entry)
+      ? sprintf('<var> -&#62; %s</var>', htmlenc(readlink($entry)))
+      : '';
+
+    if (S_ISDIR($s[2])) {
+      printf '<td class="n"><a href="%s">%s</a>/%s</td>', 
+        htmlenc($basename),
+        htmlenc($basename),
+        $link;
+      printf '<td class="s">-</td>';
+      printf '<td class="d">%s</td>', scalar localtime $s[9];
+    }
+    else {
+      printf '<td class="n"><a href="%s">%s</a>%s</td>',
+        htmlenc($basename),
+        htmlenc($basename),
+        $link;
+      printf '<td class="s">%.1f KB</td>', $s[7] / 1024;
+      printf '<td class="d">%s</td>', scalar localtime $s[9];
+    }
+
+    print "</tr>\n";
+  }
+
+  print "</table>\n";
+  print "</body></html>";
+}
+
 # ====== Main Routine ======
 
 my $phys = $ENV{'DOCUMENT_ROOT'};
@@ -208,69 +328,11 @@ if (opendir(D, $phys)) {
   return (($d1 <=> $d2) || ($a cmp $b));
 } @entries;
 
-my @metafiles = (                         # names of files to be displayed as "meta files" at the top of the page
-  qr/packages/,
-  qr/config.seed/,
-  qr/manifest/,
-  qr/lede-imagebuilder/,
-  qr/lede-sdk/,
-  qr/sha256sums/,
-  qr/\.\./
-  );
+# @entries contains list of files that should be processed
 
-my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
-   $metafiles_re = qr/$metafiles_re/o;
-
-my @metas;                                    # contains meta-file names
-my @images;                                   # contains image files that could be flashed
-
-foreach my $entry (@entries) {                # push files into the proper array
-  if ($entry =~ $metafiles_re) { 
-    push @metas, $entry;
-  }
-  else {
-    push @images, $entry;
-  }
+if ($virt =~ /\/targets\//) {
+  printtargets(\@entries, $phys, $virt)
 }
-
-my %sha256sums = getsha256sums($phys."sha256sums");
-
-my @virts = split(/\//, $virt);
-my $trimmedprefix = $virts[-2]."-".$virts[-1]."-";       # used to trim off prefix of image file names
-
-print "Content-type:text/html\n\n";
-print "<html><head>\n";
-
-print $stylecss;
-printf "<title>Index of %s</title></head>\n<body><h1>Index of %s</h1>\n", $virt, $virt;
-print "<hr>";
-
-print <<EOT;
-<p><b>Meta-Files:</b> These are the meta-files for $virt. 
-They include build tools, the imagebuilder, sha256sums, GPG signature file, and other useful files. </p>
-EOT
-# /
-
-print "<table>\n";
-print '  <tr><th class="n">Meta-file Name</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
-foreach my $entry (@metas) {
-  printentry($entry, "", \%sha256sums)
+else {
+  printdirectory(\@entries, $phys, $virt)
 }
-print "</table>\n";
-
-print <<EOT;
-<p><b>Image Files:</b> These are the image files for $virt. 
-Check that the sha256sum of the file you downloaded matches the sha256sum below.<br />
-<i>All the images file names below have the same prefix: <code>lede-17.01.0-r3205-59508e3-ar71xx-generic-...</code></i>
-</p>
-EOT
-# /
-
-print "<table>\n";
-print '  <tr><th class="n">Image for your Device</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
-foreach my $entry (@images) {
-  printentry($entry, $trimmedprefix, \%sha256sums)
-}
-
-print "</table>\n";
-print "</body></html>";
