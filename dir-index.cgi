@@ -99,20 +99,41 @@ sub htmlenc {
   return $s;
 }
 
+# getsha256sums - read the sha256sums file and return a hash for all the named files and their checksums
+sub getsha256sums {
+  my $filename = shift;
+  open(my $fh, '<:encoding(UTF-8)', $filename)
+    or die "Could not open file '$filename' $!";
+
+  my @strs;
+  my %sums;
+  while (my $row = <$fh>) {
+    chomp $row;
+    @strs = split(/\*/, $row);
+    $sums{$strs[1]} = $strs[0];
+  }
+  return %sums;
+}
+
 # printentry - print a row for each file in directory - <tr> ... </tr>
 #   $entry - full path to the file
 #   $isimagefile - true if it's an image file, false for meta-files
-#   $sha256sum - the checksum for the file
+#   $%sha256sums - reference to the checksums for this directory
 sub printentry {
   my $entry = shift;
-  my $isimagefile = shift;
-  my $sha256sum = shift;
+  my $prefixtotrim = shift;
+  my $sha256sums = shift;
   my ($basename) = $entry =~ m!([^/]+)$!; # / strip off path info
   my $size = "-";
+  my $sha256sum = $sha256sums->{$basename};
+
+  if (!$sha256sum) {
+    $sha256sum = "-";
+  }
 
   my @s = stat $entry;
-  my $link = (-l $entry)
-    ? sprintf('<var> -&#62; %s</var>', htmlenc(readlink($entry)))
+  my $link = (-l $entry)                                          # if it's a symlink
+    ? sprintf('<var> -&#62; %s</var>', htmlenc(readlink($entry))) # add '->' to the link
     : '';
   my $date = scalar localtime $s[9];
 
@@ -125,7 +146,13 @@ sub printentry {
     $size = sprintf('%.1f KB', $s[7] / 1024);
   }
   my $imagename = $basename;
-  if ($isimagefile) { $imagename = "short".$basename; }
+  if ($prefixtotrim) { 
+    my @suffix = split(/$prefixtotrim/, $basename);
+    $imagename = $suffix[1];
+    if (!$imagename) {                                            # if after stripping, no suffix, just use $basename
+      $imagename = $basename;                                     # handles files like "kernel-debug.tar.bz2"
+    }                  
+  }
 
 # All preparatory work complete: here are the variables
 #   $entry:     "./SampleData/config.seed"
@@ -206,6 +233,11 @@ foreach my $entry (@entries) {                # push files into the proper array
   }
 }
 
+my %sha256sums = getsha256sums($phys."sha256sums");
+
+my @virts = split(/\//, $virt);
+my $trimmedprefix = $virts[-2]."-".$virts[-1]."-";       # used to trim off prefix of image file names
+
 print "Content-type:text/html\n\n";
 print "<html><head>\n";
 
@@ -222,7 +254,7 @@ EOT
 print "<table>\n";
 print '  <tr><th class="n">Meta-file Name</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
 foreach my $entry (@metas) {
-  printentry($entry, 0, "012345689ABCDEF")
+  printentry($entry, "", \%sha256sums)
 }
 print "</table>\n";
 
@@ -237,7 +269,7 @@ EOT
 print "<table>\n";
 print '  <tr><th class="n">Image for your Device</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
 foreach my $entry (@images) {
-  printentry($entry, 1, "012345689ABCDEF")
+  printentry($entry, $trimmedprefix, \%sha256sums)
 }
 
 print "</table>\n";
