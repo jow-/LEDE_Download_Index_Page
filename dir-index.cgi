@@ -185,13 +185,26 @@ foreach my $entry (@entries) {                # separate meta-files from image f
   }
 }
 
+print <<EOT;
+<p><b>Meta-Files:</b> These are the meta-files for $virt, and include
+build tools, sha256sums, GPG signature file, and other useful files.</p>
+EOT
+# /
+
 print "<table>";
-print '<tr><th class="n">File Name</th><th class="s">File Size</th><th class="d">Date</th></tr>';
+print '<tr><th class="n">Meta-file Name</th><th class="s">File Size</th><th class="d">Date</th></tr>';
 print "\n";
 foreach my $entry (@metas) {
   printentry($entry)
 }
-print "</table><br />";
+print "</table>";
+
+print <<EOT;
+<p><b>Image Files:</b> These are the image files for $virt.  
+All these images files have the same prefix: <code>lede-17.01.0-r3205-59508e3-ar71xx-generic-...</code>
+Check that the sha256sum matches the file you downloaded. </p>
+EOT
+# /
 
 print "<table>";
 print '<tr><th class="n">Image for your Device</th><th class="s">File Size</th><th class="d">Date</th></tr>';
