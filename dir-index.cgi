@@ -25,7 +25,8 @@ my @metafiles = (                         # files to be displayed as "meta files
   qr/manifest/,
   qr/lede-imagebuilder/,
   qr/lede-sdk/,
-  qr/sha256sums/
+  qr/sha256sums/,
+  qr/\.\./
   );
 
 my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
@@ -112,9 +113,7 @@ EOT
 
 print '</style>';
 printf "<title>Index of %s</title></head><body><h1>Index of %s</h1>\n", $virt, $virt;
-print "<hr><table>";
-print '<tr><th class="n">File Name</th><th class="s">File Size</th><th class="d">Date</th></tr>';
-print "\n";
+print "<hr>";
 
 my @entries;
 
@@ -145,22 +144,6 @@ sub htmlenc {
 
 sub printentry {
   my $entry = shift;
-
-}
-
-my @metas;
-my @images;
-
-foreach my $entry (@entries) {                # separate meta-files from image files
-  if ($entry =~ $metafiles_re) { 
-    push @metas, $entry;
-  }
-  else {
-    push @images, $entry;
-  }
-}
-
-foreach my $entry (@entries) {
   my ($basename) = $entry =~ m!([^/]+)$!; # / 
 
   print "<tr>";
@@ -188,6 +171,33 @@ foreach my $entry (@entries) {
   }
 
   print "</tr>\n";
+}
+
+my @metas;
+my @images;
+
+foreach my $entry (@entries) {                # separate meta-files from image files
+  if ($entry =~ $metafiles_re) { 
+    push @metas, $entry;
+  }
+  else {
+    push @images, $entry;
+  }
+}
+
+print "<table>";
+print '<tr><th class="n">File Name</th><th class="s">File Size</th><th class="d">Date</th></tr>';
+print "\n";
+foreach my $entry (@metas) {
+  printentry($entry)
+}
+print "</table><br />";
+
+print "<table>";
+print '<tr><th class="n">Image for your Device</th><th class="s">File Size</th><th class="d">Date</th></tr>';
+
+foreach my $entry (@images) {
+  printentry($entry)
 }
 
 print "</table>";
