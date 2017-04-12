@@ -1,5 +1,12 @@
 #!/usr/bin/perl
 
+# dir-index.cgi - print a "directory index" for LEDE download pages.
+#
+# It distinguishes two kinds of directories:
+#
+# "targets" - which contain firmware image files, plus a few meta-files (sha256sums, gpg info, image builder, SDK)
+# "Other directories" - contain any set of files.
+
 use strict;
 use warnings;
 
@@ -115,10 +122,12 @@ sub getsha256sums {
   return %sums;
 }
 
-# printentry - print a row for each file in directory - <tr> ... </tr>
+# printentry - print a <tr> row for a file 
 #   $entry - full path to the file
-#   $isimagefile - true if it's an image file, false for meta-files
-#   $%sha256sums - reference to the checksums for this directory
+#   $prefixtotrim - empty string if it's a meta-file; 
+#       otherwise, it's the last two items of $virt, separated by "-"
+#       e.g., .../targets/ar71xx/generic -> "ar71xx-generic-"
+#   $sha256sums - reference to the checksums for this directory
 sub printentry {
   my $entry = shift;
   my $prefixtotrim = shift;
@@ -127,14 +136,14 @@ sub printentry {
   my $size = "-";
   my $sha256sum = $sha256sums->{$basename};
 
-  if (!$sha256sum) {
+  if (!$sha256sum) {                                              # if not present in hash, use "-"
     $sha256sum = "-";
   }
 
   my @s = stat $entry;
   my $link = (-l $entry)                                          # if it's a symlink
     ? sprintf('<var> -&#62; %s</var>', htmlenc(readlink($entry))) # add '->' to the link
-    : '';
+    : '';                                                         # (is this ever used?)
   my $date = scalar localtime $s[9];
 
   if (S_ISDIR($s[2])) {
@@ -146,10 +155,11 @@ sub printentry {
     $size = sprintf('%.1f KB', $s[7] / 1024);
   }
   my $imagename = $basename;
-  if ($prefixtotrim) { 
-    my @suffix = split(/$prefixtotrim/, $basename);
+  if ($prefixtotrim) {                                            # if there's a prefix, 
+    my @suffix = split(/$prefixtotrim/, $basename);               # split on it
     $imagename = $suffix[1];
-    if (!$imagename) {                                            # if after stripping, no suffix, just use $basename
+    if (!$imagename) {                                            # if result is empty, there's 
+      no suffix, just use $basename
       $imagename = $basename;                                     # handles files like "kernel-debug.tar.bz2"
     }                  
   }
@@ -248,7 +258,6 @@ EOT
     printentry($entry, $trimmedprefix, \%sha256sums)
   }
   print "</table>\n";
-
   print "</body></html>";
 }
 
