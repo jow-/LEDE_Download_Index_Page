@@ -7,7 +7,7 @@
 #   cd <main directory of repo>
 #   test.sh > SampleData/index.html
 
-export DOCUMENT_ROOT="./SampleData/"
-export PATH_INFO="releases/17.01.0/targets/ar71xx/generic/"
+export DOCUMENT_ROOT="./SampleData/"                          # becomes $phys
+export PATH_INFO="releases/17.01.0/targets/ar71xx/generic/"   # becomes $virt
 
 perl dir-index.cgi

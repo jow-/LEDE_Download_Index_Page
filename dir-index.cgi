@@ -12,8 +12,6 @@ use warnings;
 
 use Fcntl ':mode';
 
-# Variable and function declarations
-
 my $stylecss = <<EOT;
   <style type="text/css">
   html, body {
@@ -95,7 +93,7 @@ my $stylecss = <<EOT;
   </style>
 EOT
 
-# htmlenc - encode the argument for html
+# htmlenc - html-encode the argument 
 sub htmlenc {
   my $s = shift;
 
@@ -122,7 +120,7 @@ sub getsha256sums {
   return %sums;
 }
 
-# printentry - print a <tr> row for a file 
+# printentry - print a <tr> row for a target file (not in an ordinary directory)
 #   $entry - full path to the file
 #   $prefixtotrim - empty string if it's a meta-file; 
 #       otherwise, it's the last two items of $virt, separated by "-"
@@ -158,8 +156,7 @@ sub printentry {
   if ($prefixtotrim) {                                            # if there's a prefix, 
     my @suffix = split(/$prefixtotrim/, $basename);               # split on it
     $imagename = $suffix[1];
-    if (!$imagename) {                                            # if result is empty, there's 
-      no suffix, just use $basename
+    if (!$imagename) {                                            # if result is empty, there's no suffix, just use $basename
       $imagename = $basename;                                     # handles files like "kernel-debug.tar.bz2"
     }                  
   }
@@ -175,26 +172,28 @@ sub printentry {
 
   # Output the html for the row
   print '  <tr>';
-  printf '<td class="n"><a href="%s">%s</a>%s</td>',       # link
+  printf '<td class="n"><a href="%s">%s</a>%s</td>',
     htmlenc($basename),
     htmlenc($imagename),
     $link;
-  printf '<td class="sh">%s</td>', $sha256sum;              # sha256sum
-  printf '<td class="s">%s</td>', $size;                    # size
-  printf '<td class="d">%s</td>', $date;                    # date
+  printf '<td class="sh">%s</td>', $sha256sum;
+  printf '<td class="s">%s</td>', $size;
+  printf '<td class="d">%s</td>', $date;
   print  "</tr>\n";
 }
 
 sub printheader {
   my $virt = shift;
   print "Content-type:text/html\n\n";
+  print "<!-- This directory index page generated on the fly by dir-index.cgi -->\n";
   print "<html><head>\n";
-
   print $stylecss;
   printf "<title>Index of %s</title></head>\n<body><h1>Index of %s</h1>\n", $virt, $virt;
   print "<hr>";
 }
 
+# printtargets - print 'targets' directories
+#   This special cases directories of LEDE image files and their associated meta-files
 sub printtargets {
   my $entries = shift;
   my $phys = shift;
@@ -215,7 +214,7 @@ sub printtargets {
   my @metas;                                    # contains meta-file names
   my @images;                                   # contains image files that could be flashed
 
-  foreach my $entry (@$entries) {                # push files into the proper array
+  foreach my $entry (@$entries) {               # push files into the proper array
     if ($entry =~ $metafiles_re) { 
       push @metas, $entry;
     }
@@ -224,11 +223,32 @@ sub printtargets {
     }
   }
 
+  # Parse sha256sums file to get a hash of the file names/sums
   my %sha256sums = getsha256sums($phys."sha256sums");
 
-  my @virts = split(/\//, $virt);
-  my $trimmedprefix = $virts[-2]."-".$virts[-1]."-";       # used to trim off prefix of image file names
+  # To trim image file names intelligently, factor in the following:
+  #   $virt e.g.,          "releases/17.01.0/targets/ar71xx/generic/" 
+  #   $phys e.g.,          "./SampleData/" and
+  #   typical entry, e.g., "./SampleData/lede-17.01.0-r3205-59508e3-ar71xx-generic-archer-c7-v2-squashfs-sysupgrade.bin"
 
+  # $trimmedprefix is derived from the last two items of $virt, e.g., "ar71xx-generic-"
+  # $prefix comes from the first of @images array that begins with "lede" after ignoring the $phys string
+
+  my @virts = split(/\//, $virt);                     
+  my $trimmedprefix = $virts[-2]."-".$virts[-1]."-";  # used to trim off prefix of image file names
+ 
+  my $prefix = "";                                  # find the full prefix for the images
+  for my $image (@images){                          # scan through @entries to find one that begins with 'lede'       
+    if (index($image, 'lede') == length($phys)) {   # 
+      $prefix = substr($image, length($phys));      # prune off $phys from $prefix
+      last;
+    }
+  }
+  # $prefix now begins with "lede" or is empty; trim off the (unneeded) image file name from the right side
+  my $prefixposn = index($prefix, $trimmedprefix);
+  $prefix = substr($prefix, 0, $prefixposn+length($trimmedprefix));
+
+  # Begin to print the page
   printheader($virt);
 
   print <<EOT;
@@ -247,7 +267,7 @@ EOT
   print <<EOT;
   <p><b>Image Files:</b> These are the image files for $virt. 
   Check that the sha256sum of the file you downloaded matches the sha256sum below.<br />
-  <i>All the images file names below have the same prefix: <code>lede-17.01.0-r3205-59508e3-ar71xx-generic-...</code></i>
+  <i>Shortened image file names below have the same prefix: <code>$prefix...</code></i>
   </p>
 EOT
   # /
@@ -261,6 +281,8 @@ EOT
   print "</body></html>";
 }
 
+# printdirectory - print any directory in a pleasing format
+#   This substantially copies the format used by downloads.lede-project.org in early 2017
 sub printdirectory {
   my $entries = shift;
   my $phys = shift;
@@ -322,10 +344,10 @@ my $hidden_re = join '|', @hidden;        # build the master regex for hidden fi
 
 my @entries;                              # holds all files in the directory, except hidden files
 
-if (opendir(D, $phys)) {
+if (opendir(D, $phys)) {                  # read all the files from the directory
   while (defined(my $entry = readdir D)) {
     my $vpath = $virt . $entry;
-    next if $entry eq '.' || $vpath =~ $hidden_re;
+    next if $entry eq '.' || $vpath =~ $hidden_re;  # ignore filenames "." or in $hidden_re
     push @entries, $phys . $entry;
   }
   closedir D;
@@ -337,11 +359,11 @@ if (opendir(D, $phys)) {
   return (($d1 <=> $d2) || ($a cmp $b));
 } @entries;
 
-# @entries contains list of files that should be processed
+# @entries contains list of files from the directory that should be processed
 
-if ($virt =~ /\/targets\//) {
+if ($virt =~ /\/targets\//) {                 # special handling for 'targets' - LEDE image file directories
   printtargets(\@entries, $phys, $virt)
 }
-else {
+else {                                        # otherwise use standard directory display format
   printdirectory(\@entries, $phys, $virt)
 }
