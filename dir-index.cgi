@@ -122,13 +122,12 @@ sub getsha256sums {
 
 # printentry - print a <tr> row for a target file (not in an ordinary directory)
 #   $entry - full path to the file
-#   $prefixtotrim - empty string if it's a meta-file; 
-#       otherwise, it's the last two items of $virt, separated by "-"
-#       e.g., .../targets/ar71xx/generic -> "ar71xx-generic-"
+#   $prefix - empty string if it's a meta-file; 
+#       otherwise, it's the prefix to remove from the displayed file name
 #   $sha256sums - reference to the checksums for this directory
 sub printentry {
   my $entry = shift;
-  my $prefixtotrim = shift;
+  my $prefix = shift;
   my $sha256sums = shift;
   my ($basename) = $entry =~ m!([^/]+)$!; # / strip off path info
   my $size = "-";
@@ -153,12 +152,8 @@ sub printentry {
     $size = sprintf('%.1f KB', $s[7] / 1024);
   }
   my $imagename = $basename;
-  if ($prefixtotrim) {                                            # if there's a prefix, 
-    my @suffix = split(/$prefixtotrim/, $basename);               # split on it
-    $imagename = $suffix[1];
-    if (!$imagename) {                                            # if result is empty, there's no suffix, just use $basename
-      $imagename = $basename;                                     # handles files like "kernel-debug.tar.bz2"
-    }                  
+  if ($prefix && (index($basename, $prefix) == 0)) {              # if there's a prefix, and it matches at front
+    $imagename = substr($basename, length($prefix));              # trim it off
   }
 
 # All preparatory work complete: here are the variables
@@ -275,10 +270,10 @@ EOT
   print "<table>\n";
   print '  <tr><th class="n">Image for your Device</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
   foreach my $entry (@images) {
-    printentry($entry, $trimmedprefix, \%sha256sums)
+    printentry($entry, $prefix, \%sha256sums)
   }
   print "</table>\n";
-  print "</body></html>";
+  print "</body></html>\n";
 }
 
 # printdirectory - print any directory in a pleasing format
@@ -323,7 +318,7 @@ sub printdirectory {
   }
 
   print "</table>\n";
-  print "</body></html>";
+  print "</body></html>\n";
 }
 
 # ====== Main Routine ======
