@@ -330,8 +330,8 @@ my @hidden = (                            # hide these files - never consider th
   qr!^/releases/\d\d\.\d\d-SNAPSHOT/?$!,
   qr!^/releases/faillogs/?$!,
   qr!^/packages-\d\d\.\d\d/?$!,
-  qr/.DS_Store/,                          # ignore OSX .DS_Store file
-  qr/index.html/                          # test script generates index.html in the SampleData directory
+  qr!\.DS_Store!,                         # ignore OSX .DS_Store file
+  qr!index\.html!                         # test script generates index.html in the SampleData directory
 );
 
 my $hidden_re = join '|', @hidden;        # build the master regex for hidden files
@@ -356,7 +356,7 @@ if (opendir(D, $phys)) {                  # read all the files from the director
 
 # @entries contains list of files from the directory that should be processed
 
-if ($virt =~ /\/targets\//) {                 # special handling for 'targets' - LEDE image file directories
+if ($virt =~ m!/targets/[^/]+/[^/]+/?$!) {                 # special handling for 'targets' - LEDE image file directories
   printtargets(\@entries, $phys, $virt)
 }
 else {                                        # otherwise use standard directory display format
