@@ -60,7 +60,7 @@ my $stylecss = <<EOT;
     background: rgba(255, 255, 255, 0.8);
   }
   tr:hover {
-    background: rgba(255, 255, 255, 0.6); 
+    background: rgba(255, 255, 255, 0.6);
   }
   th, td {
     font-size: 14px;
@@ -93,12 +93,12 @@ my $stylecss = <<EOT;
   </style>
 EOT
 
-# htmlenc - html-encode the argument 
+# htmlenc - html-encode the argument
 sub htmlenc {
   my $s = shift;
 
   if (defined($s) && length($s)) {
-    $s =~ s!([<>"])!sprintf '&#%u;', $1!eg; # " 
+    $s =~ s!([<>"])!sprintf '&#%u;', $1!eg; # "
   }
 
   return $s;
@@ -122,7 +122,7 @@ sub getsha256sums {
 
 # printentry - print a <tr> row for a target file (not in an ordinary directory)
 #   $entry - full path to the file
-#   $prefix - empty string if it's a meta-file; 
+#   $prefix - empty string if it's a meta-file;
 #       otherwise, it's the prefix to remove from the displayed file name
 #   $sha256sums - reference to the checksums for this directory
 sub printentry {
@@ -210,7 +210,7 @@ sub printtargets {
   my @images;                                   # contains image files that could be flashed
 
   foreach my $entry (@$entries) {               # push files into the proper array
-    if ($entry =~ $metafiles_re) { 
+    if ($entry =~ $metafiles_re) {
       push @metas, $entry;
     }
     else {
@@ -222,19 +222,19 @@ sub printtargets {
   my %sha256sums = getsha256sums($phys."sha256sums");
 
   # To trim image file names intelligently, factor in the following:
-  #   $virt e.g.,          "releases/17.01.0/targets/ar71xx/generic/" 
+  #   $virt e.g.,          "releases/17.01.0/targets/ar71xx/generic/"
   #   $phys e.g.,          "./SampleData/" and
   #   typical entry, e.g., "./SampleData/lede-17.01.0-r3205-59508e3-ar71xx-generic-archer-c7-v2-squashfs-sysupgrade.bin"
 
   # $trimmedprefix is derived from the last two items of $virt, e.g., "ar71xx-generic-"
   # $prefix comes from the first of @images array that begins with "lede" after ignoring the $phys string
 
-  my @virts = split(/\//, $virt);                     
+  my @virts = split(/\//, $virt);
   my $trimmedprefix = $virts[-2]."-".$virts[-1]."-";  # used to trim off prefix of image file names
- 
+
   my $prefix = "";                                  # find the full prefix for the images
-  for my $image (@images){                          # scan through @entries to find one that begins with 'lede'       
-    if (index($image, 'lede') == length($phys)) {   # 
+  for my $image (@images){                          # scan through @entries to find one that begins with 'lede'
+    if (index($image, 'lede') == length($phys)) {   #
       $prefix = substr($image, length($phys));      # prune off $phys from $prefix
       last;
     }
@@ -247,7 +247,7 @@ sub printtargets {
   printheader($virt);
 
   print <<EOT;
-  <p><b>Meta-Files:</b> These are the meta-files for $virt. 
+  <p><b>Meta-Files:</b> These are the meta-files for $virt.
   They include build tools, the imagebuilder, sha256sums, GPG signature file, and other useful files. </p>
 EOT
   # /
@@ -260,7 +260,7 @@ EOT
   print "</table>\n";
 
   print <<EOT;
-  <p><b>Image Files:</b> These are the image files for $virt. 
+  <p><b>Image Files:</b> These are the image files for $virt.
   Check that the sha256sum of the file you downloaded matches the sha256sum below.<br />
   <i>Shortened image file names below have the same prefix: <code>$prefix...</code></i>
   </p>
@@ -298,7 +298,7 @@ sub printdirectory {
       : '';
 
     if (S_ISDIR($s[2])) {
-      printf '<td class="n"><a href="%s">%s</a>/%s</td>', 
+      printf '<td class="n"><a href="%s">%s</a>/%s</td>',
         htmlenc($basename),
         htmlenc($basename),
         $link;
