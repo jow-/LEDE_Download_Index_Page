@@ -265,20 +265,8 @@ sub printtargets {
   printheader($virt);
 
   print <<EOT;
-  <p><b>Meta-Files:</b> These are the meta-files for $virt.
-  They include build tools, the imagebuilder, sha256sums, GPG signature file, and other useful files. </p>
-EOT
-  # /
-
-  print "<table>\n";
-  print '  <tr><th class="n">Meta-file Name</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
-  foreach my $entry (@metas) {
-    printentry($entry, "", \%sha256sums)
-  }
-  print "</table>\n";
-
-  print <<EOT;
-  <p><b>Image Files:</b> These are the image files for $virt.
+  <h2>Image Files</h2>
+  <p>These are the image files for the <b>$target/$subtarget</b> target.
   Check that the sha256sum of the file you downloaded matches the sha256sum below.<br />
   <i>Shortened image file names below have the same prefix: <code>$prefix...</code></i>
   </p>
@@ -291,6 +279,21 @@ EOT
     printentry($entry, $prefix, \%sha256sums)
   }
   print "</table>\n";
+
+  print <<EOT;
+  <h2>Supplementary Files</h2>
+  <p>These are supplementary resources for the <b>$target/$subtarget</b> target.
+  They include build tools, the imagebuilder, sha256sums, GPG signature file, and other useful files. </p>
+EOT
+  # /
+
+  print "<table>\n";
+  print '  <tr><th class="n">Filename</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
+  foreach my $entry (@metas) {
+    printentry($entry, "", \%sha256sums)
+  }
+  print "</table>\n";
+
   print "</body></html>\n";
 }
 
