@@ -34,6 +34,10 @@ my $stylecss = <<EOT;
     font-size: 120%;
     line-height: 1em;
   }
+  h2 {
+    font-size: 100%;
+    line-height: 1em;
+  }
   table {
     width: 100%;
     box-shadow: 0 0 0.5em #999;
@@ -62,8 +66,10 @@ my $stylecss = <<EOT;
   tr:hover {
     background: rgba(255, 255, 255, 0.6);
   }
-  th, td {
+  p, th, td {
     font-size: 14px;
+  }
+  th, td {
     height: 20px;
     vertical-align: middle;
     white-space: nowrap;
