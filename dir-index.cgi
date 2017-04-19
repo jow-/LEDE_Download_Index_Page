@@ -229,19 +229,30 @@ sub printtargets {
   # $trimmedprefix is derived from the last two items of $virt, e.g., "ar71xx-generic-"
   # $prefix comes from the first of @images array that begins with "lede" after ignoring the $phys string
 
-  my @virts = split(/\//, $virt);
-  my $trimmedprefix = $virts[-2]."-".$virts[-1]."-";  # used to trim off prefix of image file names
+  my ($target, $subtarget) = $virt =~ m!/([^/]+)/([^/]+)/?$!;
+  my (%prefixes, $prefix);
 
-  my $prefix = "";                                  # find the full prefix for the images
-  for my $image (@images){                          # scan through @entries to find one that begins with 'lede'
-    if (index($image, 'lede') == length($phys)) {   #
-      $prefix = substr($image, length($phys));      # prune off $phys from $prefix
-      last;
+  # Build a mapping table (prefix => number of occurences)
+  # For each image basename, try to find a prefix that either ends in -$target-$subtarget- or in -$target-
+  # and if found, use it as key in the %prefixes dictionary and countits value up by one.
+  foreach my $image (@$entries) {
+    my ($base) = $image =~ m!/([^/]+)$!;
+    my $i1 = index($base, "-$target-$subtarget-");
+    my $i2 = index($base, "-$target-");
+
+    if ($i1 > 0) {
+      my $s = substr($base, 0, $i1 + length("-$target-$subtarget-"));
+      $prefixes{$s}++;
+    }
+    elsif ($i2 > 0) {
+      my $s = substr($base, 0, $i2 + length("-$target-"));
+      $prefixes{$s}++;
     }
   }
-  # $prefix now begins with "lede" or is empty; trim off the (unneeded) image file name from the right side
-  my $prefixposn = index($prefix, $trimmedprefix);
-  $prefix = substr($prefix, 0, $prefixposn+length($trimmedprefix));
+
+  # Sort the found prefix substrings descending by number of occurences and put the first (most used)
+  # one into $prefix.
+  ($prefix) = sort { $prefixes{$b} <=> $prefixes{$a} } keys %prefixes;
 
   # Begin to print the page
   printheader($virt);
