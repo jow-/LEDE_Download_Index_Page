@@ -206,18 +206,6 @@ sub printtargets {
   my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
      $metafiles_re = qr/$metafiles_re/o;
 
-  my @metas;                                    # contains meta-file names
-  my @images;                                   # contains image files that could be flashed
-
-  foreach my $entry (@$entries) {               # push files into the proper array
-    if ($entry =~ $metafiles_re) {
-      push @metas, $entry;
-    }
-    else {
-      push @images, $entry;
-    }
-  }
-
   # Parse sha256sums file to get a hash of the file names/sums
   my %sha256sums = getsha256sums($phys."sha256sums");
 
@@ -253,6 +241,19 @@ sub printtargets {
   # Sort the found prefix substrings descending by number of occurences and put the first (most used)
   # one into $prefix.
   ($prefix) = sort { $prefixes{$b} <=> $prefixes{$a} } keys %prefixes;
+
+
+  my @metas;                                    # contains meta-file names
+  my @images;                                   # contains image files that could be flashed
+
+  foreach my $entry (@$entries) {               # push files into the proper array
+    if ($entry =~ m!/$prefix!o && $entry !~ $metafiles_re) {
+      push @images, $entry;
+    }
+    else {
+      push @metas, $entry;
+    }
+  }
 
   # Begin to print the page
   printheader($virt);
