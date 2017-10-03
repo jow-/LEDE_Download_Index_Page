@@ -104,7 +104,7 @@ sub htmlenc {
   my $s = shift;
 
   if (defined($s) && length($s)) {
-    $s =~ s!([<>"])!sprintf '&#%u;', $1!eg; # "
+    $s =~ s!([<>"])!sprintf '&#%u;', ord $1!eg; # "
   }
 
   return $s;
@@ -183,13 +183,32 @@ sub printentry {
   print  "</tr>\n";
 }
 
+sub printh1 {
+  my $virt = shift;
+  my @parts = split /\//, $virt;
+  my $s = '';
+
+  if (@parts == 0) {
+    @parts = ('');
+  }
+
+  for (my $i = 0; $i < @parts; $i++) {
+    $s .= sprintf '<a href="%s/">%s</a> / ',
+	join('/', @parts[0..$i]),
+	$i ? $parts[$i] : '<em>(root)</em>';
+  }
+
+  printf "<h1>Index of %s</h1>\n", $s;
+}
+
 sub printheader {
   my $virt = shift;
   print "Content-type:text/html\n\n";
   print "<!-- This directory index page generated on the fly by dir-index.cgi -->\n";
   print "<html><head>\n";
   print $stylecss;
-  printf "<title>Index of %s</title></head>\n<body><h1>Index of %s</h1>\n", $virt, $virt;
+  printf "<title>Index of %s</title></head>\n<body>\n", $virt;
+  printh1($virt);
   print "<hr>";
 }
 
@@ -206,7 +225,6 @@ sub printtargets {
     qr/lede-imagebuilder/,
     qr/lede-sdk/,
     qr/sha256sums/,
-    qr/\.\./
     );
 
   my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
@@ -363,7 +381,7 @@ my @entries;                              # holds all files in the directory, ex
 if (opendir(D, $phys)) {                  # read all the files from the directory
   while (defined(my $entry = readdir D)) {
     my $vpath = $virt . $entry;
-    next if $entry eq '.' || $vpath =~ $hidden_re;  # ignore filenames "." or in $hidden_re
+    next if $entry eq '.' || $entry eq '..' || $vpath =~ $hidden_re;  # ignore filenames "." or in $hidden_re
     push @entries, $phys . $entry;
   }
   closedir D;
