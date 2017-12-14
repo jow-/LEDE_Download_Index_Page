@@ -11,6 +11,7 @@ use strict;
 use warnings;
 
 use Fcntl ':mode';
+use JSON;
 
 my $stylecss = <<EOT;
   <style type="text/css">
@@ -395,7 +396,21 @@ if (opendir(D, $phys)) {                  # read all the files from the director
 
 # @entries contains list of files from the directory that should be processed
 
-if ($virt =~ m!/targets/[^/]+/[^/]+/?$!) {                 # special handling for 'targets' - LEDE image file directories
+if ($virt =~ m!/targets/$! && $ENV{'QUERY_STRING'} eq 'json') {
+  if (open F, '-|', 'find', $phys, '-maxdepth', 3, '-type', 'f') {
+    my @list;
+
+    while (defined(my $line = readline F)) {
+      chomp $line;
+      push @list, substr $line, length $phys;
+    }
+    close F;
+
+    print "Content-Type: application/json\n\n";
+    print JSON::encode_json(\@list);
+  }
+}
+elsif ($virt =~ m!/targets/[^/]+/[^/]+/?$!) {                 # special handling for 'targets' - LEDE image file directories
   printtargets(\@entries, $phys, $virt)
 }
 else {                                        # otherwise use standard directory display format
