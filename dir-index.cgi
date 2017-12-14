@@ -119,7 +119,7 @@ sub getchecksums {
   if (open(my $fh, '<:encoding(UTF-8)', $filename)) {
     while (my $row = <$fh>) {
       chomp $row;
-      @strs = split(/\*/, $row);
+      @strs = split(/[ *]+/, $row);
       $sums{$strs[1]} = $strs[0];
     }
   }
@@ -320,7 +320,7 @@ EOT
   # /
 
   print "<table>\n";
-  print '  <tr><th class="n">Filename</th><th>$checktype</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
+  print '  <tr><th class="n">Filename</th><th>'.$checktype.'</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
   foreach my $entry (@metas) {
     printentry($entry, "", \%checksums)
   }
