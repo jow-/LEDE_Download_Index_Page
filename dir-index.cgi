@@ -111,18 +111,17 @@ sub htmlenc {
   return $s;
 }
 
-# getsha256sums - read the sha256sums file and return a hash for all the named files and their checksums
-sub getsha256sums {
+# getchecksums - read the checksum file and return a hash for all the named files and their checksums
+sub getchecksums {
   my $filename = shift;
-  open(my $fh, '<:encoding(UTF-8)', $filename)
-    or die "Could not open file '$filename' $!";
-
   my @strs;
   my %sums;
-  while (my $row = <$fh>) {
-    chomp $row;
-    @strs = split(/\*/, $row);
-    $sums{$strs[1]} = $strs[0];
+  if (open(my $fh, '<:encoding(UTF-8)', $filename)) {
+    while (my $row = <$fh>) {
+      chomp $row;
+      @strs = split(/\*/, $row);
+      $sums{$strs[1]} = $strs[0];
+    }
   }
   return %sums;
 }
@@ -131,17 +130,17 @@ sub getsha256sums {
 #   $entry - full path to the file
 #   $prefix - empty string if it's a meta-file;
 #       otherwise, it's the prefix to remove from the displayed file name
-#   $sha256sums - reference to the checksums for this directory
+#   $checksums - reference to the checksums for this directory
 sub printentry {
   my $entry = shift;
   my $prefix = shift;
-  my $sha256sums = shift;
+  my $checksums = shift;
   my ($basename) = $entry =~ m!([^/]+)$!; # / strip off path info
   my $size = "-";
-  my $sha256sum = $sha256sums->{$basename};
+  my $checksum = $checksums->{$basename};
 
-  if (!$sha256sum) {                                              # if not present in hash, use "-"
-    $sha256sum = "-";
+  if (!$checksum) {                                              # if not present in hash, use "-"
+    $checksum = "-";
   }
 
   my @s = stat $entry;
@@ -152,7 +151,7 @@ sub printentry {
 
   if (S_ISDIR($s[2])) {
     $size = "-";
-    $sha256sum = "-";
+    $checksum = "-";
     $basename = $basename."/";
   }
   else {
@@ -168,7 +167,7 @@ sub printentry {
 #   $basename:  "config.seed"
 #   $imagename: $basename, or shortened version of image name
 #   $link:      "" or "-> actual-file-following-link"
-#   $sha256sum: the sum, or "-"
+#   $checksum:  the sum, or "-"
 #   $size:      the size ("1234.5 KB") or "-"
 #   $date:      in the form "Tue Feb 21 04:03:38 2017"
 
@@ -178,7 +177,7 @@ sub printentry {
     htmlenc($basename),
     htmlenc($imagename),
     $link;
-  printf '<td class="sh">%s</td>', $sha256sum;
+  printf '<td class="sh">%s</td>', $checksum;
   printf '<td class="s">%s</td>', $size;
   printf '<td class="d">%s</td>', $date;
   print  "</tr>\n";
@@ -225,14 +224,23 @@ sub printtargets {
     qr/manifest/,
     qr/lede-imagebuilder/,
     qr/lede-sdk/,
+    qr/openwrt-imagebuilder/,
+    qr/openwrt-sdk/,
+    qr/md5sums/,
     qr/sha256sums/,
     );
 
   my $metafiles_re = join '|', @metafiles;  # build the master regex for meta files
      $metafiles_re = qr/$metafiles_re/o;
 
-  # Parse sha256sums file to get a hash of the file names/sums
-  my %sha256sums = getsha256sums($phys."sha256sums");
+  # Parse checksum files to get a hash of the file names/sums
+  my $checktype = "sha256sum";
+  my %checksums = getchecksums($phys.$checktype."s");
+
+  if (!keys %checksums) {
+    $checktype = "md5sum";
+    %checksums = getchecksums($phys.$checktype."s");
+  }
 
   # To trim image file names intelligently, factor in the following:
   #   $virt e.g.,          "releases/17.01.0/targets/ar71xx/generic/"
@@ -242,15 +250,20 @@ sub printtargets {
   # $trimmedprefix is derived from the last two items of $virt, e.g., "ar71xx-generic-"
   # $prefix comes from the first of @images array that begins with "lede" after ignoring the $phys string
 
-  my ($target, $subtarget) = $virt =~ m!/([^/]+)/([^/]+)/?$!;
-  my (%prefixes, $prefix);
+  my ($target, $subtarget, $tuple, %prefixes, $prefix);
+
+  ($target, $subtarget) = $virt =~ m!/([^0-9][^/]+)/([^/]+)/?$!;
+  ($target, $subtarget) = ($virt =~ m!/([^/]+)/?$!, '') unless $target;
+
+  $tuple = $target . ($subtarget ? '/' . $subtarget : '');
+
 
   # Build a mapping table (prefix => number of occurences)
   # For each image basename, try to find a prefix that either ends in -$target-$subtarget- or in -$target-
   # and if found, use it as key in the %prefixes dictionary and countits value up by one.
   foreach my $image (@$entries) {
     my ($base) = $image =~ m!/([^/]+)$!;
-    my $i1 = index($base, "-$target-$subtarget-");
+    my $i1 = $subtarget ? index($base, "-$target-$subtarget-") : 0;
     my $i2 = index($base, "-$target-");
 
     if ($i1 > 0) {
@@ -285,31 +298,31 @@ sub printtargets {
 
   print <<EOT;
   <h2>Image Files</h2>
-  <p>These are the image files for the <b>$target/$subtarget</b> target.
-  Check that the sha256sum of the file you downloaded matches the sha256sum below.<br />
+  <p>These are the image files for the <b>$tuple</b> target.
+  Check that the $checktype of the file you downloaded matches the $checktype below.<br />
   <i>Shortened image file names below have the same prefix: <code>$prefix...</code></i>
   </p>
 EOT
   # /
 
   print "<table>\n";
-  print '  <tr><th class="n">Image for your Device</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
+  print '  <tr><th class="n">Image for your Device</th><th>'.$checktype.'</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
   foreach my $entry (@images) {
-    printentry($entry, $prefix, \%sha256sums)
+    printentry($entry, $prefix, \%checksums)
   }
   print "</table>\n";
 
   print <<EOT;
   <h2>Supplementary Files</h2>
-  <p>These are supplementary resources for the <b>$target/$subtarget</b> target.
-  They include build tools, the imagebuilder, sha256sums, GPG signature file, and other useful files. </p>
+  <p>These are supplementary resources for the <b>$tuple</b> target.
+  They include build tools, the imagebuilder, $checktype, GPG signature file, and other useful files. </p>
 EOT
   # /
 
   print "<table>\n";
-  print '  <tr><th class="n">Filename</th><th>sha256sum</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
+  print '  <tr><th class="n">Filename</th><th>$checktype</th><th class="s">File Size</th><th class="d">Date</th></tr>'."\n";
   foreach my $entry (@metas) {
-    printentry($entry, "", \%sha256sums)
+    printentry($entry, "", \%checksums)
   }
   print "</table>\n";
 
@@ -410,7 +423,9 @@ if ($virt =~ m!/targets/$! && $ENV{'QUERY_STRING'} eq 'json') {
     print JSON::encode_json(\@list);
   }
 }
-elsif ($virt =~ m!/targets/[^/]+/[^/]+/?$!) {                 # special handling for 'targets' - LEDE image file directories
+elsif ($virt =~ m!/targets/[^/]+/[^/]+/?$! || # special handling for 'targets' - LEDE image file directories
+       $virt =~ m!/(backfire|kamikaze)/[^/]+/[^/]+/?$! ||
+       $virt =~ m!/(attitude_adjustment|barrier_breaker|chaos_calmer)/[^/]+/[^/]+/[^/]+/?$!) {
   printtargets(\@entries, $phys, $virt)
 }
 else {                                        # otherwise use standard directory display format
