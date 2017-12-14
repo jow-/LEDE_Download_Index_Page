@@ -227,8 +227,9 @@ sub printtargets {
     qr/manifest/,
     qr/lede-imagebuilder/,
     qr/lede-sdk/,
-    qr/openwrt-imagebuilder/,
-    qr/openwrt-sdk/,
+    qr/[Oo]pen[Ww]rt-[Ii]mage[Bb]uilder/,
+    qr/[Oo]pen[Ww]rt-[Ss][Dd][Kk]/,
+    qr/[Oo]pen[Ww]rt-[Tt]oolchain/,
     qr/md5sums/,
     qr/sha256sums/,
     );
