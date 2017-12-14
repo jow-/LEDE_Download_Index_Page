@@ -114,13 +114,16 @@ sub htmlenc {
 # getchecksums - read the checksum file and return a hash for all the named files and their checksums
 sub getchecksums {
   my $filename = shift;
-  my @strs;
   my %sums;
   if (open(my $fh, '<:encoding(UTF-8)', $filename)) {
     while (my $row = <$fh>) {
       chomp $row;
-      @strs = split(/[ *]+/, $row);
-      $sums{$strs[1]} = $strs[0];
+      if ($row =~ m!^([a-f0-9]+) [ *](.+)$!) {
+        $sums{$2} = $1;
+      }
+      elsif ($row =~ m!SHA256\((.+)\)= ([a-f0-9]+)$!) {
+        $sums{$1} = $2;
+      }
     }
   }
   return %sums;
