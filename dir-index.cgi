@@ -197,11 +197,26 @@ sub printh1 {
 
   for (my $i = 0; $i < @parts; $i++) {
     $s .= sprintf '<a href="%s/">%s</a> / ',
-	join('/', @parts[0..$i]),
-	$i ? $parts[$i] : '<em>(root)</em>';
+	htmlenc(join('/', @parts[0..$i])),
+	$i ? htmlenc($parts[$i]) : '<em>(root)</em>';
   }
 
   printf "<h1>Index of %s</h1>\n", $s;
+}
+
+sub print404 {
+  my $virt = shift;
+  print "Status: 404 Not found\n";
+  print "Content-type: text/html\n\n";
+  print "<!-- This directory index page generated on the fly by dir-index.cgi -->\n";
+  print "<html><head>\n";
+  print $stylecss;
+  printf "<title>Not found: %s</title></head>\n<body>\n", htmlenc($virt);
+  printf "<h1>Not found: %s</h1>\n", htmlenc($virt);
+  print "<hr>";
+  print "<p>The requested resource could not be found on the server.</p>";
+  print "<p>Try returning to the <a href=\"/\">root directory</a> to browse available directories.</p>";
+  print "</body></html>";
 }
 
 sub printheader {
@@ -210,7 +225,7 @@ sub printheader {
   print "<!-- This directory index page generated on the fly by dir-index.cgi -->\n";
   print "<html><head>\n";
   print $stylecss;
-  printf "<title>Index of %s</title></head>\n<body>\n", $virt;
+  printf "<title>Index of %s</title></head>\n<body>\n", htmlenc($virt);
   printh1($virt);
   print "<hr>";
 }
@@ -403,6 +418,10 @@ if (opendir(D, $phys)) {                  # read all the files from the director
     push @entries, $phys . $entry;
   }
   closedir D;
+}
+else {
+  print404($virt);
+  exit 0;
 }
 
 @entries = sort {
