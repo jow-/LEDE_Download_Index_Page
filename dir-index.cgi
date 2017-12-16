@@ -370,7 +370,7 @@ sub printdirectory {
       : '';
 
     if (S_ISDIR($s[2])) {
-      printf '<td class="n"><a href="%s">%s</a>/%s</td>',
+      printf '<td class="n"><a href="%s/">%s</a>/%s</td>',
         htmlenc($basename),
         htmlenc($basename),
         $link;
