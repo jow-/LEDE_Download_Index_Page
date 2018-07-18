@@ -432,8 +432,14 @@ else {
 
 # @entries contains list of files from the directory that should be processed
 
-if ($virt =~ m!/targets/$! && $ENV{'QUERY_STRING'} eq 'json') {
-  if (open F, '-|', 'find', $phys, '-maxdepth', 3, '-type', 'f') {
+if ($virt =~ m!/targets/$! && $ENV{'QUERY_STRING'} =~ m!^json\b!) {
+  my ($type, $mindepth, $maxdepth) = ('f', 0, 3);
+
+  if ($ENV{'QUERY_STRING'} =~ m!\btargets!) {
+    ($type, $mindepth, $maxdepth) = ('d', 2, 2);
+  }
+
+  if (open F, '-|', 'find', $phys, '-mindepth', $mindepth, '-maxdepth', $maxdepth, '-type', $type) {
     my @list;
 
     while (defined(my $line = readline F)) {
