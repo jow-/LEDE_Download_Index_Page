@@ -402,7 +402,7 @@ my @hidden = (                            # hide these files - never consider th
   qr!^/releases/\d\d\.\d\d-SNAPSHOT/?$!,
   qr!^/releases/faillogs/?$!,
   qr!^/packages-\d\d\.\d\d/?$!,
-  qr!\.DS_Store!,                         # ignore OSX .DS_Store file
+  qr!/\.[^/]+$!,                          # ignore hidden files and directories
   qr!index\.html!                         # test script generates index.html in the SampleData directory
 );
 
