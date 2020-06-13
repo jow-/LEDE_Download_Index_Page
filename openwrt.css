@@ -1,0 +1,358 @@
+/* merged css from: 
+- canonical CSS file at: https://github.com/openwrt/luci/blob/master/themes/luci-theme-openwrt-2020/htdocs/luci-static/openwrt2020/cascade.css
+- main downloads.openwrt.org page 
+- and https://mwarning.github.io/yet_another_firmware_selector/ 
+*/
+
+:root {
+  --main-bright-color: #00A3E1;
+  --main-dark-color: #002B49;
+  --secondary-bright-color: #FFFFFF;
+  --secondary-dark-color: #212322;
+  --danger-color: #CC1111;
+  --warning-color: #CC8800;
+  --regular-font: "GalanoGrotesqueW00-Regular";
+  --base-font-size: 16px;
+}
+
+@font-face {
+  font-family: "GalanoGrotesqueW00-Regular";
+  src: url("fonts/GalanoGrotesqueW00-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "GalanoGrotesqueAltW00-Rg"; 
+  src: url("fonts/GalanoGrotesqueAltW00-Rg.woff2") format("woff2"); 
+}
+
+body {
+    font-family: "Arial", sans-serif;
+    margin: 0px;
+    padding: 0px;
+    color: #333;
+    line-height: 1.3em;
+}
+
+header {
+    font-weight: 500;
+    width: 100%;
+    z-index: 1100;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+    background-color: #00A3E1;
+}
+
+footer {
+    font-size: 80%;
+    text-align: right;
+    margin: 1em 0;
+}
+
+#footer {
+    font-size: 0.8em;
+    text-align: right;
+}
+
+#footer a {
+    text-decoration: none;
+}
+
+h1 {
+    font-size: 120%;
+    line-height: 1em;
+}
+
+h2 {
+    font-size: 100%;
+    line-height: 1em;
+}
+
+h6 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.6;
+    letter-spacing: 0.0075em;
+}
+
+header>div {
+    padding-left: 24px;
+    padding-right: 24px;
+    /* min-height: 72px; */
+
+    display: flex;
+    position: relative;
+    align-items: center;
+    color: #fff;
+}
+
+header>div>img {
+    height: 7em;
+    padding: 1em;
+}
+
+.container {
+    max-width: 1280px;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 30px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: 100px;
+}
+
+.container>div {
+    padding: 10px 20px;
+    text-align: left;
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    color: rgba(0, 0, 0, 0.87);
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    background-color: #fff;
+}
+
+a:link,
+a:visited {
+    color: #337ab7;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+a:hover,
+a:active,
+a:focus {
+    color: #23527c;
+    text-decoration: underline;
+}
+
+/* --- table formatting for firmware pages --- */
+/* --- keep these lines together --- */
+table {
+    font-size: 13px;
+    width: 100%;
+    box-shadow: 0 0 0.5em #999;
+    margin: 0;
+    border: none !important;
+    margin-bottom: 2em;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+th {
+    background: #000;
+    background: -webkit-linear-gradient(top, #444, #000);
+    background: -moz-linear-gradient(top, #444, #000);
+    background: -ms-linear-gradient(top, #444, #000);
+    background: -o-linear-gradient(top, #444, #000);
+    background: linear-gradient(top, #444, #000);
+    font-size: 14px;
+    line-height: 24px;
+    border: none;
+    text-align: left;
+    color: #fff;
+}
+
+tr {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+th,
+td {
+    width: auto
+    font-size: 10px;
+    height: 20px;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 0.2em 0.5em;
+    border: 1px solid #ccc;
+}
+
+.s {
+    text-align: right;
+    white-space: nowrap;
+    width: 1%;
+}
+
+.d {
+    text-align: center;
+    white-space: nowrap;
+    width: 1%;
+}
+
+.sh {
+    font-family: monospace;
+    white-space: nowrap;
+    width: 1%;
+}
+
+/* --- end of table formatting for firmware pages */
+
+#models-autocomplete {
+    width: 20em;
+    display: inline-block;
+}
+
+.autocomplete {
+    position: relative;
+}
+
+.autocomplete>input {
+    border: 1px solid transparent;
+    background-color: #f1f1f1;
+    padding: 10px;
+    width: 100%;
+    border-radius: 4px;
+}
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+    background-color: #e9e9e9;
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+    background-color: DodgerBlue !important;
+    color: #ffffff;
+}
+
+
+
+#versions {
+    border: 1px solid transparent;
+    background-color: #f1f1f1;
+    padding: 10px;
+    width: 10em;
+    border-radius: 4px;
+}
+
+#language-selection {
+    color: #fff;
+    background-color: #1084b2;
+    box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 3px 1px -2px rgba(0, 0, 0, 0.12);
+    padding: 6px 16px;
+    border-radius: 4px;
+    border: 0;
+
+    /* hide arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+}
+
+.download-link {
+    text-decoration: none;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 3px 1px -2px rgba(0, 0, 0, 0.12);
+    color: #fff;
+    background-color: #00A3E1;
+}
+
+.download-link:hover {
+    background-color: #038fc6
+}
+
+.download-link :first-child {
+    width: 30px;
+    margin-right: 15px;
+    margin-top: -2px;
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z' fill='%23fff'%3E%3C/path%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E");
+}
+
+#images .column {
+    width: 5em;
+    display: inline-block;
+    line-height: 1.5;
+}
+
+#images {
+    display: none;
+}
+
+#images>div {
+    padding-top: 20px;
+}
+
+#image-model {
+    font-weight: bold;
+}
+
+#custom {
+    display: none;
+}
+
+#custom textarea {
+    width: 500px;
+    height: 120px;
+    font-size: 16px;
+    display: block;
+}
+
+#custom a :first-child {
+    width: 30px;
+    margin-right: 10px;
+    margin-top: 0px;
+    font-size: 36px;
+}
+
+#custom a {
+    text-decoration: none;
+    border-radius: 4px;
+    padding: 2px 10px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 3px 1px -2px rgba(0, 0, 0, 0.12);
+    color: #fff;
+    background-color: #00A3E1;
+}
+
+.download-help {
+    display: none;
+}
+
+#buildspinner {
+    float: left;
+    height: 40px;
+    padding-right: 12px;
+    display: none;
+}
+
+#buildstatus {
+    padding: 10px 0;
+    display: none;
+}
