@@ -1,0 +1,3 @@
+Content-Type: application/json
+
+["/lede-17.01.0-r3205-59508e3-ar71xx-generic.manifest","/kernel-debug.tar.bz2","/lede-17.01.0-r3205-59508e3-ar71xx-generic-wndr3800-squashfs-sysupgrade.bin","/lede-imagebuilder-17.01.0-ar71xx-generic.Linux-x86_64.tar.xz","/lede-sdk-17.01.0-ar71xx-generic_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz","/download.html","/config.seed","/sha256sums","/lede-17.01.0-r3205-59508e3-ar71xx-generic-archer-c7-v2-squashfs-sysupgrade.bin","/lede-17.01.0-r3205-59508e3-ar71xx-generic-wndr3800-squashfs-factory.img","/sha256sums.gpg"]
