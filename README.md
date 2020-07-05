@@ -48,6 +48,14 @@ But not this week.)
 
 Paste the HTML files into [W3C Markup Validation Service](https://validator.w3.org/#validate_by_input) to verify that the HTML output is good.
 
+## Provenance of Assorted Assets
+
+* SVG images of OpenWrt logo (three color variations) from [https://gist.github.com/jow-/503002651aa3ee3e8803b5ad29abf7ca#file-openwrt-logo-white-and-dark-blue-svg](https://gist.github.com/jow-/503002651aa3ee3e8803b5ad29abf7ca#file-openwrt-logo-white-and-dark-blue-svg)
+* GalanoGrotesque.woff comes from OpenWrt repo: [https://github.com/openwrt/luci/blob/master/themes/luci-theme-openwrt-2020/htdocs/luci-static/openwrt2020/GalanoGrotesqueW00-Regular.woff2
+](https://github.com/openwrt/luci/blob/master/themes/luci-theme-openwrt-2020/htdocs/luci-static/openwrt2020/GalanoGrotesqueW00-Regular.woff2
+)
+* Canonical CSS file for OpenWrt theme: [https://github.com/openwrt/luci/blob/master/themes/luci-theme-openwrt-2020/htdocs/luci-static/openwrt2020/cascade.css](https://github.com/openwrt/luci/blob/master/themes/luci-theme-openwrt-2020/htdocs/luci-static/openwrt2020/cascade.css)
+
 ## Screen Shots
 
 **OpenWrt Downloads Home Page**<br />
@@ -57,5 +65,4 @@ Paste the HTML files into [W3C Markup Validation Service](https://validator.w3.o
 ![Formatted OpenWrt Firmware listing](doc/Targets-1000.png)
 
 **OpenWrt "Ordinary" Directory**<br />
-![Formatted OpenWrt directory listing](doc/FormattedDirectory.png)
-
+![Formatted OpenWrt directory listing](doc/formatteddirectory-1000.png)

@@ -1,8 +1,27 @@
-/* merged css from main downloads.openwrt.org page */
-/* and https://mwarning.github.io/yet_another_firmware_selector/ */
+/* merged css from: 
+- canonical CSS file at: https://github.com/openwrt/luci/blob/master/themes/luci-theme-openwrt-2020/htdocs/luci-static/openwrt2020/cascade.css
+- main downloads.openwrt.org page 
+- and https://mwarning.github.io/yet_another_firmware_selector/ 
+*/
+
+:root {
+  --main-bright-color: #00A3E1;
+  --main-dark-color: #002B49;
+  --secondary-bright-color: #FFFFFF;
+  --secondary-dark-color: #212322;
+  --danger-color: #CC1111;
+  --warning-color: #CC8800;
+  --regular-font: "GalanoGrotesqueW00-Regular";
+  --base-font-size: 16px;
+}
+
+@font-face {
+  font-family: "GalanoGrotesqueW00-Regular";
+  src: url("fonts/GalanoGrotesqueW00-Regular.woff2") format("woff2");
+}
 
 body {
-    font-family: "Arial", sans-serif;
+    font-family: "GalanoGrotesqueW00-Regular", sans-serif;
     margin: 0px;
     padding: 0px;
     color: #333;
