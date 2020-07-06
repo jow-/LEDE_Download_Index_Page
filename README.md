@@ -58,6 +58,8 @@ Paste the HTML files into [W3C Markup Validation Service](https://validator.w3.o
 
 ## Screen Shots
 
+You can review the appearance of these files at the [richb-hanover.github.io](https://richb-hanover.github.io//LEDE_Download_Index_Page/files.html) or look at the screenshots below:
+
 **OpenWrt Downloads Home Page**<br />
 ![Downloads Home Page](doc/index-1000.png)
 
