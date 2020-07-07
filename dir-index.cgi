@@ -203,8 +203,8 @@ sub printheader{
     print <<EOT;
       <header>
       <div>
-        <img src="images/logo.png" alt="Logo">
-        <div style="flex-grow: 1; text-align: center;">
+        <img src="images/openwrt-logo-white-and-dark-blue.svg" alt="Logo">
+        <div style="flex-grow: 1; text-align: left;">
           <h1>Download OpenWrt Firmware</h1>
         </div>
       </div>

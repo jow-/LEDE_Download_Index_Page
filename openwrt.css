@@ -79,6 +79,11 @@ header>div {
     color: #fff;
 }
 
+header>div>img {
+    height: 3em;
+    padding: 1em;
+}
+
 .container {
     max-width: 1280px;
     padding-left: 10px;
