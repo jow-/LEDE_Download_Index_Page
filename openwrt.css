@@ -20,11 +20,17 @@
   src: url("fonts/GalanoGrotesqueW00-Regular.woff2") format("woff2");
 }
 
+@font-face {
+  font-family: "GalanoGrotesqueAltW00-Rg"; 
+  src: url("fonts/GalanoGrotesqueAltW00-Rg.woff2") format("woff2"); 
+}
+
 body {
-    font-family: "GalanoGrotesqueW00-Regular", sans-serif;
+    font-family: "GalanoGrotesqueAltW00-Rg", sans-serif;
     margin: 0px;
     padding: 0px;
     color: #333;
+    line-height: 1.3em;
 }
 
 header {
