@@ -3,7 +3,7 @@
 <head>
 	<meta charset='utf-8'/>
 	<link rel='stylesheet' href='openwrt.css' />
-	<title>OpenWrt Downloads</title>
+	<title>Welcome to OpenWrt</title>
 </head>
 <body>
 
@@ -17,11 +17,29 @@
 </header>
 <div class="container">
                                                            <!-- wikipage start -->
+<button onclick="setFont(this)">GalanoGrotesqueW00-Regular</button>
+<button onclick="setFont(this)">GalanoGrotesqueAltW00-Rg</button>
+<button onclick="setFont(this)">Arial</button>
+<button onclick="setFont(this)">Courier</button>
+<button onclick="setFont(this)">Candara</button>
+<button onclick="setFont(this)">Optima</button>
+<button onclick="setFont(this)">Cambria</button>
+<button onclick="setFont(this)">Perpetua</button>
+<button onclick="setFont(this)">Lucida Sans</button>
+
+<script>
+	function setFont(obj) { 
+		font = obj.innerHTML
+		document.getElementsByTagName('body')[0].style.fontFamily = font;
+		document.getElementById('fontname').textContext = font;
+	}
+</script>
                     
 <h1 class="sectionedit1" id="welcome_to_the_openwrt_project">Welcome to the OpenWrt Project</h1>
+
+<div id="fontname"></div>
+
 <div class="level1">
-
-
 
 <p>
 The OpenWrt Project is a Linux operating system targeting embedded devices. Instead of trying to create a single, static firmware, OpenWrt provides a fully writable filesystem with package management. This frees you from the application selection and configuration provided by the vendor and allows you to customize the device through the use of packages to suit any application. For developers, OpenWrt is the framework to build an application without having to build a complete firmware around it; for users this means the ability for full customization, to use the device in ways never envisioned.
@@ -34,9 +52,7 @@ See the <a href="/toh/start" class="wikilink1" title="toh:start" data-wiki-id="t
 </div>
 
 <h2 class="sectionedit2" id="current_stable_seriesopenwrt_1907">Current stable series: OpenWrt 19.07</h2>
-<div class="level2">
 
-</div>
 <div class="plugin_include_content plugin_include__releases:19.07:start">
 <div class="level2">
 
