@@ -97,11 +97,6 @@ my $stylecss = <<EOT;
   .sh {
     font-family: monospace;
   }
-  footer {
-    font-size: 80%;
-    text-align: right;
-    margin: 1em 0;
-  }
   </style>
 EOT
 
@@ -350,7 +345,6 @@ EOT
   }
   print "</table>\n";
 
-  print '<footer>Open Source Downloads supported by <a href="https://www.keycdn.com/">KeyCDN</a>.</footer>'."\n";
   print "</body></html>\n";
 }
 
@@ -396,8 +390,6 @@ sub printdirectory {
   }
 
   print "</table>\n";
-
-  print '<footer>Open Source Downloads supported by <a href="https://www.keycdn.com/">KeyCDN</a>.</footer>'."\n";
   print "</body></html>\n";
 }
 
