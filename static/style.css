@@ -25,7 +25,11 @@ body {
 }
 
 a {
-  color: inherit;
+  color: #002843;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }
 
 #models-autocomplete {
@@ -177,9 +181,6 @@ header > div {
   outline: none;
   border: none;
   width: 100%;
-  /* hide defaul arrow */
-  -moz-appearance: none;
-  -webkit-appearance: none;
   appearance: none;
 }
 
@@ -267,11 +268,6 @@ header > div {
   text-align: center;
 }
 
-
-/* 
- * table formatting for firmware pages
- * keep these lines together
- */
 table {
     font-size: 13px;
     width: 100%;
@@ -284,12 +280,7 @@ table {
 }
 
 th {
-    background: #000;
-    background: -webkit-linear-gradient(top, #444, #000);
-    background: -moz-linear-gradient(top, #444, #000);
-    background: -ms-linear-gradient(top, #444, #000);
-    background: -o-linear-gradient(top, #444, #000);
-    background: linear-gradient(top, #444, #000);
+    background: #002843;
     font-size: 14px;
     line-height: 24px;
     border: none;
@@ -305,6 +296,8 @@ tr:hover {
     background: rgba(255, 255, 255, 0.6);
 }
 
+tr:nth-child(2n+1) { background: #eee; }
+
 th,
 td {
     width: auto
@@ -313,7 +306,7 @@ td {
     vertical-align: middle;
     white-space: nowrap;
     padding: 0.2em 0.5em;
-    border: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
 }
 
 .s {
@@ -333,7 +326,3 @@ td {
     white-space: nowrap;
     width: 1%;
 }
-
-/* 
- * end of table formatting for firmware pages 
- */
