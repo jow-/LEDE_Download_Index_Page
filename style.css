@@ -279,57 +279,36 @@ footer a {
   color: #556;
   margin: 0 0 0.8em;
 }
-.hp-archive {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3em;
-}
-.hp-series {
-  background: #fff;
-  border: 1px solid #dde;
-  border-radius: 6px;
-  overflow: hidden;
-}
-.hp-series summary {
-  padding: 0.5em 1em;
-  font-size: 14px;
-  font-weight: 600;
+.hp-archive summary {
   cursor: pointer;
-  color: #002843;
   list-style: none;
 }
-.hp-series summary::-webkit-details-marker {
+.hp-archive summary::-webkit-details-marker {
   display: none;
 }
-.hp-series summary::before {
+.hp-archive summary::before {
   content: "\25B8";
   display: inline-block;
   margin-right: 0.5em;
   transition: transform 0.15s;
 }
-.hp-series[open] summary::before {
+.hp-archive[open] summary::before {
   transform: rotate(90deg);
 }
-.hp-series-count {
-  font-weight: 400;
-  font-size: 12px;
-  color: #889;
-  margin-left: 0.3em;
+.hp-archive summary h3 {
+  display: inline;
 }
-.hp-series ul {
+.hp-archive ul {
   margin: 0;
-  padding: 0 1em 0.6em 2.2em;
+  padding: 0 1em 0.6em 1.5em;
   list-style: none;
 }
-.hp-series li {
+.hp-archive li {
   padding: 0.15em 0;
   font-size: 13px;
 }
-.hp-series li a {
+.hp-archive li a {
   font-weight: 600;
-}
-.hp-series summary:hover {
-  background: #f5f8fa;
 }
 
 @media (max-width: 800px) {
@@ -489,17 +468,7 @@ footer a {
   .hp-section > p {
     color: #999;
   }
-  .hp-series {
-    background: #1e1e38;
-    border-color: #333;
-  }
-  .hp-series summary {
+  .hp-archive summary h3 {
     color: #e0e0e0;
-  }
-  .hp-series summary:hover {
-    background: #252545;
-  }
-  .hp-series-count {
-    color: #777;
   }
 }

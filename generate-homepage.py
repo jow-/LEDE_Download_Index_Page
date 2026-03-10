@@ -68,18 +68,6 @@ def version_link(version, archive=False):
     return label, href
 
 
-def group_versions_by_series(versions):
-    """Group versions by major.minor series, preserving input order."""
-    series = {}
-    order = []
-    for v in versions:
-        mm = major_minor(v)
-        if mm not in series:
-            series[mm] = []
-            order.append(mm)
-        series[mm].append(v)
-    return [(mm, series[mm]) for mm in order]
-
 
 def generate(data):
     stable = data["stable_version"]
@@ -108,8 +96,8 @@ def generate(data):
         f'  <div class="hp-logo">{LOGO_IMG}</div>\n'
         '  <div>\n'
         '    <h1>OpenWrt Downloads</h1>\n'
-        '    <p class="hp-subtitle">Firmware images, SDKs and toolchains '
-        'for every supported device.</p>\n'
+        '    <p class="hp-subtitle">Welcome to the OpenWrt download area. '
+        'Follow the links below to find the appropriate directory.</p>\n'
         '  </div>\n'
         '</div>\n'
         '<hr>'
@@ -157,50 +145,27 @@ def generate(data):
 
     # Release archive
     if archive_versions:
-        lines.append('<div class="hp-section">\n  <h3>Release Archive</h3>\n')
+        # Flat list of all old releases, no subsections
+        finals = [v for v in archive_versions if not is_rc(v)]
+        lines.append('<div class="hp-section">\n')
         lines.append(
-            '  <p>The releases linked below are mostly for historic interest &mdash; '
+            '  <details class="hp-archive">\n'
+            '    <summary><h3>Release Archive</h3></summary>\n'
+            '    <p>The releases linked below are mostly for historic interest &mdash; '
             "they're generally out of date and no longer maintained.</p>\n"
         )
-
-        grouped = group_versions_by_series(archive_versions)
-        lines.append('  <div class="hp-archive">\n')
-        for mm, versions in grouped:
-            # Only show final releases by default, skip RCs
-            finals = [v for v in versions if not is_rc(v)]
-            if not finals:
-                continue
-            bname = brand_name(finals[0])
-            lines.append(f'    <details class="hp-series">\n')
+        lines.append('    <ul>\n')
+        for v in finals:
+            label, href = version_link(v, archive=True)
             lines.append(
-                f'      <summary>{he(bname)} {he(mm)} '
-                f'<span class="hp-series-count">'
-                f'{len(finals)} release{"s" if len(finals) != 1 else ""}'
-                f'</span></summary>\n'
+                f'      <li><a href="{he(href)}">{he(label)}</a></li>\n'
             )
-            lines.append('      <ul>\n')
-            for v in finals:
-                label, href = version_link(v, archive=True)
-                lines.append(
-                    f'        <li><a href="{he(href)}">{he(label)}</a></li>\n'
-                )
-            lines.append('      </ul>\n    </details>\n')
-
-        # Legacy codename releases
-        lines.append('    <details class="hp-series">\n')
-        lines.append(
-            '      <summary>Legacy Codename Releases '
-            f'<span class="hp-series-count">{len(LEGACY_RELEASES)} releases'
-            '</span></summary>\n'
-        )
-        lines.append('      <ul>\n')
         for label, path in LEGACY_RELEASES:
             href = f"//archive.openwrt.org/{path}"
             lines.append(
-                f'        <li><a href="{he(href)}">{he(label)}</a></li>\n'
+                f'      <li><a href="{he(href)}">{he(label)}</a></li>\n'
             )
-        lines.append('      </ul>\n    </details>\n')
-        lines.append('  </div>\n</div>\n')
+        lines.append('    </ul>\n  </details>\n</div>\n')
 
     lines.append(FOOTER_HTML)
     lines.append('\n</body></html>')
